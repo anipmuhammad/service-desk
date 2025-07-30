@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "googleapis": "^154.0.0",
+    "googleapis": "^154.1.0",
     "next": "15.4.4",
     "nodemailer": "^7.0.5",
     "react": "19.1.0",
@@ -28,5 +28,4 @@
     "tailwindcss": "^4",
     "typescript": "^5"
   }
-  
 }

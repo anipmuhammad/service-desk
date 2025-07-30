@@ -21,12 +21,15 @@ export default function Home() {
         </div>
 
         {/* Navigation on the right */}
-        <nav className="flex gap-6">
+        <nav className="flex gap-6 items-center">
           <Link href="/">
             <span className="hover:text-sky-600 font-bold cursor-pointer">Home</span>
           </Link>
           <Link href="/kiosk">
             <span className="hover:text-sky-600 font-bold cursor-pointer">Service Desk</span>
+          </Link>
+          <Link href="/login">
+            <span className="hover:text-sky-600 font-bold cursor-pointer">Admin</span>
           </Link>
         </nav>
       </header>

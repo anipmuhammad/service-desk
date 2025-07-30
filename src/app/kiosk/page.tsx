@@ -31,7 +31,6 @@ export default function Kiosk() {
           setEmail("");
           setSelectedService(null);
 
-          // ✅ Redirect with queue number
           router.push(`/success?queue=${queueNumber}`);
         } else {
           alert("❌ Failed to submit request.");
@@ -69,12 +68,16 @@ export default function Kiosk() {
           <span className="text-xl font-bold">IT Service Desk</span>
         </div>
 
-        <nav className="flex gap-6">
+        {/* Navigation with text-style Admin link */}
+        <nav className="flex gap-6 items-center">
           <Link href="/">
             <span className="hover:text-sky-600 font-bold cursor-pointer">Home</span>
           </Link>
           <Link href="/kiosk">
             <span className="hover:text-sky-600 font-bold cursor-pointer">Service Desk</span>
+          </Link>
+          <Link href="/login">
+            <span className="hover:text-sky-600 font-bold cursor-pointer">Admin</span>
           </Link>
         </nav>
       </header>
