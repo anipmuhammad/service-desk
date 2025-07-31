@@ -9,6 +9,7 @@ export default function OfficerPage() {
   const router = useRouter();
   const [isAuth, setIsAuth] = useState(false);
   const [queue, setQueue] = useState<any[]>([]);
+  const [assignedCounters, setAssignedCounters] = useState<string[]>([]);
 
   useEffect(() => {
     const auth = sessionStorage.getItem("isAuthenticated");
@@ -28,17 +29,22 @@ export default function OfficerPage() {
       const res = await fetch("/api/get-queue");
       const data = await res.json();
       setQueue(data);
+
+      const activeCounters = data
+        .filter((row: any) => row.status !== "Resolved" && row.counter)
+        .map((row: any) => row.counter);
+      setAssignedCounters(activeCounters);
     } catch (err) {
       console.error("Failed to fetch queue:", err);
     }
   };
 
-  const handleResolve = async (index: number) => {
+  const handleResolve = async (rowIndex: number) => {
     try {
       await fetch("/api/resolve-ticket", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rowIndex: index + 1 }),
+        body: JSON.stringify({ rowIndex }),
       });
       fetchQueue();
     } catch (err) {
@@ -46,12 +52,12 @@ export default function OfficerPage() {
     }
   };
 
-  const handleAssignCounter = async (index: number, counter: string) => {
+  const handleAssignCounter = async (rowIndex: number, counter: string) => {
     try {
       await fetch("/api/assign-counter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rowIndex: index + 1, counter }),
+        body: JSON.stringify({ rowIndex, counter }),
       });
       fetchQueue();
     } catch (err) {
@@ -99,7 +105,7 @@ export default function OfficerPage() {
         <h1 className="text-3xl font-bold mb-6 text-center">Active Queue Table</h1>
 
         <div className="overflow-x-auto w-full max-w-6xl">
-          {queue.length === 0 ? (
+          {queue.filter((row) => row.status !== "Resolved").length === 0 ? (
             <p className="text-gray-600 text-lg text-center">No active tickets right now.</p>
           ) : (
             <table className="min-w-full border border-gray-300 text-sm text-left">
@@ -114,49 +120,53 @@ export default function OfficerPage() {
                 </tr>
               </thead>
               <tbody>
-                {queue.map((row, idx) => (
-                  <tr
-                    key={idx}
-                    className={`${
-                      row.status === "Resolved"
-                        ? "bg-green-50 text-green-800"
-                        : "bg-white"
-                    }`}
-                  >
-                    <td className="py-2 px-4 border font-semibold">{row.queue}</td>
-                    <td className="py-2 px-4 border">{row.email}</td>
-                    <td className="py-2 px-4 border">{row.issue}</td>
-                    <td className="py-2 px-4 border">
-                      {row.status !== "Resolved" ? (
-                        <select
-                          className="border rounded px-2 py-1 text-sm text-sky-700"
-                          value={row.counter || ""}
-                          onChange={(e) => handleAssignCounter(row.index, e.target.value)}
-                        >
-                          <option value="">—</option>
-                          <option value="Counter 1">Counter 1</option>
-                          <option value="Counter 2">Counter 2</option>
-                          <option value="Counter 3">Counter 3</option>
-                        </select>
-                      ) : (
-                        <span className="text-sky-700 font-semibold">{row.counter || "—"}</span>
-                      )}
-                    </td>
-                    <td className="py-2 px-4 border font-medium">{row.status}</td>
-                    <td className="py-2 px-4 border">
-                      {row.status !== "Resolved" ? (
+                {queue
+                  .filter((row) => row.status !== "Resolved")
+                  .map((row) => (
+                    <tr key={row.rowIndex} className="bg-white">
+                      <td className="py-2 px-4 border font-semibold">{row.queue}</td>
+                      <td className="py-2 px-4 border">{row.email}</td>
+                      <td className="py-2 px-4 border">{row.issue}</td>
+                      <td className="py-2 px-4 border">
+                        <div className="flex gap-1 flex-wrap">
+                          {["Counter 1", "Counter 2", "Counter 3", "Counter 4"].map((counter) => (
+                            <button
+                              key={counter}
+                              disabled={
+                                assignedCounters.includes(counter) &&
+                                row.counter !== counter
+                              }
+                              onClick={() => handleAssignCounter(row.rowIndex, counter)}
+                              className={`px-2 py-1 text-xs rounded font-medium border 
+                                ${
+                                  row.counter === counter
+                                    ? "bg-sky-600 text-white"
+                                    : "bg-white text-sky-700 border-sky-600 hover:bg-sky-100"
+                                } 
+                                ${
+                                  assignedCounters.includes(counter) &&
+                                  row.counter !== counter
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : ""
+                                }
+                              `}
+                            >
+                              {counter.split(" ")[1]}
+                            </button>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="py-2 px-4 border font-medium">{row.status}</td>
+                      <td className="py-2 px-4 border">
                         <button
-                          onClick={() => handleResolve(row.index)}
+                          onClick={() => handleResolve(row.rowIndex)}
                           className="px-3 py-1 text-sm bg-sky-600 text-white rounded hover:bg-sky-700"
                         >
                           Mark as Resolved
                         </button>
-                      ) : (
-                        <span className="text-green-600 font-semibold">✓</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           )}

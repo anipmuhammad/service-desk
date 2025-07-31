@@ -21,7 +21,6 @@ export async function GET() {
     auth: authClient,
   });
 
-  // Fetch columns A to G (A = time, B = issue, C = email, D = name, E = queue, F = status, G = counter)
   const result = await sheets.spreadsheets.values.get({
     spreadsheetId: SPREADSHEET_ID,
     range: `${SHEET_NAME}!A:G`,
@@ -29,15 +28,18 @@ export async function GET() {
 
   const rows = result.data.values || [];
 
+  // Add 2 to i because:
+  // - +1 to skip header
+  // - +1 because spreadsheet is 1-indexed (row 2 is first data row)
   const data = rows.slice(1).map((row, i) => ({
-    index: i + 1,
+    rowIndex: i + 2, // actual row number in spreadsheet
     time: row[0],
     issue: row[1],
     email: row[2],
     name: row[3],
     queue: row[4],
     status: row[5] || "Pending",
-    counter: row[6] || "", // <-- Add counter (Column G)
+    counter: row[6] || "",
   }));
 
   return NextResponse.json(data);
