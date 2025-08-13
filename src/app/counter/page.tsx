@@ -14,6 +14,10 @@ export default function CounterDisplayPage() {
     'Counter 2': '-',
     'Counter 3': '-',
     'Counter 4': '-',
+    'Counter 5': '-',
+    'Counter 6': '-',
+    'Counter 7': '-',
+    'Counter 8': '-',
   });
 
   useEffect(() => {
@@ -39,6 +43,10 @@ export default function CounterDisplayPage() {
         'Counter 2': latestByCounter['Counter 2'] || '-',
         'Counter 3': latestByCounter['Counter 3'] || '-',
         'Counter 4': latestByCounter['Counter 4'] || '-',
+        'Counter 5': latestByCounter['Counter 5'] || '-',
+        'Counter 6': latestByCounter['Counter 6'] || '-',
+        'Counter 7': latestByCounter['Counter 7'] || '-',
+        'Counter 8': latestByCounter['Counter 8'] || '-',
       });
     } catch (err) {
       console.error('Failed to fetch queue data:', err);
@@ -49,7 +57,7 @@ export default function CounterDisplayPage() {
     <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center px-4 py-10">
       <h1 className="text-3xl font-bold mb-10 text-center">Live Counter Display</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 w-full max-w-4xl">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 w-full max-w-6xl">
         {Object.entries(counters).map(([counter, queue]) => (
           <div
             key={counter}

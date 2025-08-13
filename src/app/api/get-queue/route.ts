@@ -1,45 +1,27 @@
 import { NextResponse } from 'next/server';
-import { google } from 'googleapis';
-import { JWT } from 'google-auth-library';
+import fs from 'fs';
+import path from 'path';
 
-const SHEET_NAME = "Sheet2";
-const SPREADSHEET_ID = process.env.SPREADSHEET_ID!;
+const DATA_FILE = path.join(process.cwd(), 'public', 'data.json');
 
 export async function GET() {
-  const auth = new google.auth.GoogleAuth({
-    credentials: {
-      client_email: process.env.GOOGLE_CLIENT_EMAIL,
-      private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
-    },
-    scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-  });
+  let rows: any[] = [];
+  try {
+    rows = JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
+  } catch (err) {
+    return NextResponse.json({ error: 'Failed to read data file.' }, { status: 500 });
+  }
 
-  const authClient = (await auth.getClient()) as JWT;
-
-  const sheets = google.sheets({
-    version: "v4",
-    auth: authClient,
-  });
-
-  const result = await sheets.spreadsheets.values.get({
-    spreadsheetId: SPREADSHEET_ID,
-    range: `${SHEET_NAME}!A:G`,
-  });
-
-  const rows = result.data.values || [];
-
-  // Add 2 to i because:
-  // - +1 to skip header
-  // - +1 because spreadsheet is 1-indexed (row 2 is first data row)
-  const data = rows.slice(1).map((row, i) => ({
-    rowIndex: i + 2, // actual row number in spreadsheet
-    time: row[0],
-    issue: row[1],
-    email: row[2],
-    name: row[3],
-    queue: row[4],
-    status: row[5] || "Pending",
-    counter: row[6] || "",
+  // Map data to expected format
+  const data = rows.map((row, i) => ({
+    rowIndex: i + 1, // 1-based index for compatibility
+    time: row.time || "",
+    issue: row.service || row.issue || "",
+    email: row.email || "",
+    name: row.name || "",
+    queue: row.queueNumber || row.queue || "",
+    status: row.status || "Pending",
+    counter: row.counter || "",
   }));
 
   return NextResponse.json(data);

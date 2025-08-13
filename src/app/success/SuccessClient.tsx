@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function SuccessClient() {
+export default function SuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [queueNumber, setQueueNumber] = useState<string | null>(null);
@@ -12,7 +12,7 @@ export default function SuccessClient() {
   useEffect(() => {
     const queue = searchParams.get("queue");
     setQueueNumber(queue);
-    const timer = setTimeout(() => setLoading(false), 1500);
+    const timer = setTimeout(() => setLoading(false), 1200);
     return () => clearTimeout(timer);
   }, [searchParams]);
 
@@ -21,12 +21,12 @@ export default function SuccessClient() {
       {loading ? (
         <div className="flex flex-col items-center">
           <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="mt-4 text-lg font-medium">Processing...</p>
+          <p className="mt-4 text-lg font-medium">Processing your request...</p>
         </div>
       ) : (
         <div className="text-center">
           <h1 className="text-3xl font-bold text-green-600 mb-4">
-            Request Submitted!
+            ✅ Request Submitted Successfully!
           </h1>
           {queueNumber ? (
             <>
@@ -36,7 +36,7 @@ export default function SuccessClient() {
               </p>
             </>
           ) : (
-            <p className="text-lg text-red-500">No queue number found.</p>
+            <p className="text-lg text-red-500">Queue number not found.</p>
           )}
           <button
             onClick={() => router.push('/')}
@@ -49,3 +49,4 @@ export default function SuccessClient() {
     </div>
   );
 }
+

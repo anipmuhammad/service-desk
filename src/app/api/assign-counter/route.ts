@@ -1,37 +1,34 @@
 import { NextResponse } from "next/server";
-import { google } from "googleapis";
-import { JWT } from "google-auth-library";
+import fs from "fs";
+import path from "path";
 
-const SHEET_NAME = "Sheet2";
-const SPREADSHEET_ID = process.env.SPREADSHEET_ID!;
+const DATA_FILE = path.join(process.cwd(), "public", "data.json");
 
 export async function POST(req: Request) {
   const { rowIndex, counter } = await req.json();
 
-  const auth = new google.auth.GoogleAuth({
-    credentials: {
-      client_email: process.env.GOOGLE_CLIENT_EMAIL,
-      private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
-    },
-    scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-  });
+  // Read data from JSON file
+  let data: any[] = [];
+  try {
+    data = JSON.parse(fs.readFileSync(DATA_FILE, "utf-8"));
+  } catch (err) {
+    return NextResponse.json({ error: "Failed to read data file." }, { status: 500 });
+  }
 
-  const authClient = (await auth.getClient()) as JWT;
+  // Check if rowIndex is valid
+  if (rowIndex < 1 || rowIndex > data.length) {
+    return NextResponse.json({ error: "Invalid row index." }, { status: 400 });
+  }
 
-  const sheets = google.sheets({
-    version: "v4",
-    auth: authClient,
-  });
+  // Update counter for the given row (rowIndex is 1-based)
+  data[rowIndex - 1].counter = counter;
 
-  // Update column G (Counter) in the given row index
-  await sheets.spreadsheets.values.update({
-    spreadsheetId: SPREADSHEET_ID,
-    range: `${SHEET_NAME}!G${rowIndex}`, // Column G for counter
-    valueInputOption: "USER_ENTERED",
-    requestBody: {
-      values: [[counter]],
-    },
-  });
+  // Write updated data back to JSON file
+  try {
+    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+  } catch (err) {
+    return NextResponse.json({ error: "Failed to write data file." }, { status: 500 });
+  }
 
   return NextResponse.json({ message: "Counter assigned successfully" });
 }

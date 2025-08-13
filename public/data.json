@@ -1,0 +1,50 @@
+[
+  {
+    "time": "13/08/2025, 10:55:05 am",
+    "service": "Internet Problem",
+    "email": "anip@swinburne.edu.my",
+    "queue": "Q0001",
+    "status": "Pending",
+    "counter": "Counter 1"
+  },
+  {
+    "time": "13/08/2025, 10:56:23 am",
+    "service": "Software Installation",
+    "email": "chin@gmail.com",
+    "queue": "Q0002",
+    "status": "Resolved",
+    "counter": "Counter 2"
+  },
+  {
+    "time": "13/08/2025, 10:59:22 am",
+    "service": "Email Access Issue",
+    "email": "chin@gmail.com",
+    "queue": "Q0003",
+    "status": "Pending",
+    "counter": "Counter 3"
+  },
+  {
+    "time": "13/08/2025, 11:00:02 am",
+    "service": "Password Reset / MFA",
+    "email": "muhd.hanif9991@gmail.com",
+    "queue": "Q0004",
+    "status": "Resolved",
+    "counter": "Counter 2"
+  },
+  {
+    "time": "13/08/2025, 11:07:20 am",
+    "service": "Software Installation",
+    "email": "ali@swinburne.edu.my",
+    "queue": "Q0005",
+    "status": "Pending",
+    "counter": "Counter 4"
+  },
+  {
+    "time": "13/08/2025, 11:07:47 am",
+    "service": "parking",
+    "email": "chin@gmail.com",
+    "queue": "Q0006",
+    "status": "Pending",
+    "counter": "Counter 5"
+  }
+]

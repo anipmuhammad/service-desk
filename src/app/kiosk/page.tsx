@@ -8,20 +8,29 @@ import { useRouter } from "next/navigation";
 export default function Kiosk() {
   const [selectedService, setSelectedService] = useState<string | null>(null);
   const [email, setEmail] = useState("");
+  const [otherProblem, setOtherProblem] = useState(""); // new state for custom problem
   const router = useRouter();
 
   const handleSelect = (service: string) => {
     setSelectedService((prev) => (prev === service ? null : service));
+    if (service !== "Other") {
+      setOtherProblem(""); // reset when changing away from "Other"
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedService && email) {
+
+    // Determine final service value
+    const serviceToSend =
+      selectedService === "Other" ? otherProblem.trim() : selectedService;
+
+    if (serviceToSend && email) {
       try {
         const res = await fetch("/api/send-email", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, service: selectedService }),
+          body: JSON.stringify({ email, service: serviceToSend }),
         });
 
         if (res.ok) {
@@ -30,6 +39,7 @@ export default function Kiosk() {
 
           setEmail("");
           setSelectedService(null);
+          setOtherProblem("");
 
           router.push(`/success?queue=${queueNumber}`);
         } else {
@@ -68,7 +78,6 @@ export default function Kiosk() {
           <span className="text-xl font-bold">IT Service Desk</span>
         </div>
 
-        {/* Navigation with text-style Admin link */}
         <nav className="flex gap-6 items-center">
           <Link href="/">
             <span className="hover:text-sky-600 font-bold cursor-pointer">Home</span>
@@ -110,6 +119,23 @@ export default function Kiosk() {
             ))}
           </div>
 
+          {/* Other Problem Input */}
+          {selectedService === "Other" && (
+            <div className="w-full">
+              <label className="block text-sm font-medium text-black mb-1">
+                Please state your problem
+              </label>
+              <input
+                type="text"
+                placeholder="State your issue"
+                value={otherProblem}
+                onChange={(e) => setOtherProblem(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-sky-400"
+                required
+              />
+            </div>
+          )}
+
           {/* Email Input */}
           <div className="w-full">
             <label className="block text-sm font-medium text-black mb-1">
@@ -128,9 +154,15 @@ export default function Kiosk() {
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={!selectedService || !email}
+            disabled={
+              !email ||
+              !selectedService ||
+              (selectedService === "Other" && !otherProblem.trim())
+            }
             className={`w-full py-2 rounded font-semibold transition ${
-              selectedService && email
+              email &&
+              selectedService &&
+              (selectedService !== "Other" || otherProblem.trim())
                 ? "bg-sky-600 text-white hover:bg-sky-700"
                 : "bg-gray-300 text-gray-600 cursor-not-allowed"
             }`}

@@ -5,6 +5,25 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 
+type Account = {
+  password: string;
+  role: "admin" | "officer";
+  counter?: string; // Only for officers
+};
+
+// All accounts
+const accounts: Record<string, Account> = {
+  admin: { password: "admin123", role: "admin" },
+  officer1: { password: "1234", role: "officer", counter: "Counter 1" },
+  officer2: { password: "1234", role: "officer", counter: "Counter 2" },
+  officer3: { password: "1234", role: "officer", counter: "Counter 3" },
+  officer4: { password: "1234", role: "officer", counter: "Counter 4" },
+  officer5: { password: "1234", role: "officer", counter: "Counter 5" },
+  officer6: { password: "1234", role: "officer", counter: "Counter 6" },
+  officer7: { password: "1234", role: "officer", counter: "Counter 7" },
+  officer8: { password: "1234", role: "officer", counter: "Counter 8" },
+};
+
 export default function LoginPage() {
   const router = useRouter();
   const [username, setUsername] = useState("");
@@ -14,9 +33,21 @@ export default function LoginPage() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (username === "officer" && password === "password123") {
+    const key = username.trim().toLowerCase();
+    const account = accounts[key];
+
+    if (account && account.password === password) {
       sessionStorage.setItem("isAuthenticated", "true");
-      router.push("/officer");
+      sessionStorage.setItem("role", account.role);
+
+      if (account.role === "admin") {
+        // Admin sees all counters
+        router.push("/officer");
+      } else {
+        // Officer only sees their counter
+        sessionStorage.setItem("officerCounter", account.counter || "");
+        router.push("/officer");
+      }
     } else {
       setError("Invalid credentials");
     }
@@ -52,7 +83,7 @@ export default function LoginPage() {
       {/* Main */}
       <main className="flex flex-col items-center justify-center flex-1 px-4 py-10">
         <h1 className="text-3xl font-bold mb-6 text-center">
-          Officer Login
+          Officer/Admin Login
         </h1>
 
         <form
